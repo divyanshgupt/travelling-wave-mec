@@ -7,3 +7,7 @@ Simulation of Grid Cells and Travelling Waves in the MEC
 * Poisson Neurons
 * Population Vector Based Decoding
 
+-----
+This work was done along Inayath Shaikh
+
+

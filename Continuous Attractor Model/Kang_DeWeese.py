@@ -12,7 +12,7 @@ import datetime
 import os
 
 
-data_folder = '/data/' + str(datetime.datetime.today())[:13]
+data_folder = 'data/' + str(datetime.datetime.today())[:13]
 location = os.path.abspath(data_folder)
 location = os.path.join(os.getcwd(), location)
 os.makedirs(location)

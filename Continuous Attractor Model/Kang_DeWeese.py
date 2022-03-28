@@ -8,14 +8,13 @@ from brian2 import *
 # from matplotlib import pyplot as plt
 from tqdm import tqdm
 
-
-
-
 start_scope() # creat a new scope
 
+
 # Parameters
+n = 40
 N = 232 * 232 # Neurons per population
-N = 10 * 10
+N = n * n
 
 tau_m_plus = 40*ms # Exc. membrane time constant
 tau_m_minus = 20*ms # Inh. membrane time constant
@@ -29,10 +28,10 @@ a_mag_minus = 0.72 # Inh. drive magnitude
 a_th_minus = 0.2 # Inh. drive theta amplitude
 f = 8*hertz # Inh. drive theta frequency
 w_mag_plus = 0.2 # Exc. synaptic strength
-r_w_plus = 6 # Exc. synaptic spread
+r_w_plus = (6/232) * n # Exc. synaptic spread
 w_mag_minus = 2.8 # Inh. synaptic strength
-r_w_minus = 12 # Inh. synaptic distance
-xi = 3 # Exc. synaptic shift
+r_w_minus = (12/232) * n # Inh. synaptic distance
+xi = (3/232) * n # Exc. synaptic shift
 alpha = 0.25*second/metre # Exc. velocity gain
 var_zeta_P = 0.002**2 # Exc. noise magnitude
 var_zeta_I = 0.002**2 # Inh. noise magnitude

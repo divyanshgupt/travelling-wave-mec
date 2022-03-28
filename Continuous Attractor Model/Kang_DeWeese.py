@@ -7,6 +7,15 @@ from brian2 import *
 #import numpy as np
 # from matplotlib import pyplot as plt
 from tqdm import tqdm
+import pickle
+import datetime
+import os
+
+
+data_folder = '/data/' + str(datetime.datetime.today())[:13]
+location = os.path.abspath(data_folder)
+location = os.path.join(os.getcwd(), location)
+os.makedirs(location)
 
 start_scope() # creat a new scope
 
@@ -354,13 +363,14 @@ dt = 0.1*ms
 velocity_array_x, velocity_array_y = simulate_random_velocity(duration, dt, step_size)
 
 
-# figure(dpi=130)
-# plot(velocity_array_x[:], velocity_array_y[:])
-# plot(velocity_array_x[0], velocity_array_y[0], 'ro', color='black', label='start')
-# plot(velocity_array_x[-1], velocity_array_y[-1], 'ro', color='blue', label='stop')
-# title("Rat Trajectory")
-# legend()
-
+fig = figure(dpi=130)
+fig.plot(velocity_array_x[:], velocity_array_y[:])
+fig.plot(velocity_array_x[0], velocity_array_y[0], 'ro', color='black', label='start')
+fig.plot(velocity_array_x[-1], velocity_array_y[-1], 'ro', color='blue', label='stop')
+fig.title("Rat Trajectory")
+fig.legend()
+fig.savefig(location + '/animal_velocity.png')
+close(fig)
 
 V_x = TimedArray(velocity_array_x, dt=dt)
 V_y = TimedArray(velocity_array_y, dt=dt)
@@ -375,6 +385,13 @@ V_y = TimedArray(velocity_array_y, dt=dt)
 print("Running the simulation")
 run(duration)
 
+figure(dpi=120)
+for i in range(N):
+    plot(State_n.v[i, :])
+title("Membrane potential for neurons in P_n over time")
+ylabel("Membrane Potential")
+xlabel("Time")
+savefig(location + '/animal_velocity.png')
 
 # ## Plot Connectivity
 
@@ -383,8 +400,6 @@ run(duration)
 # * 5 - 9 : south > north, south, east, west, inh
 # * 10 - 14: east > north, south, east, west, inh
 # 
-
-
 
 
 

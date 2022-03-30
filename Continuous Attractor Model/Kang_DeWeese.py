@@ -363,12 +363,12 @@ dt = 0.1*ms
 velocity_array_x, velocity_array_y = simulate_random_velocity(duration, dt, step_size)
 
 
-fig = figure(dpi=130)
-fig.plot(velocity_array_x[:], velocity_array_y[:])
-fig.plot(velocity_array_x[0], velocity_array_y[0], 'ro', color='black', label='start')
-fig.plot(velocity_array_x[-1], velocity_array_y[-1], 'ro', color='blue', label='stop')
-fig.title("Rat Trajectory")
-fig.legend()
+fig, ax = subplots()
+ax.plot(velocity_array_x[:], velocity_array_y[:])
+ax.plot(velocity_array_x[0], velocity_array_y[0], 'ro', color='black', label='start')
+ax.plot(velocity_array_x[-1], velocity_array_y[-1], 'ro', color='blue', label='stop')
+fig.suptitle("Rat Trajectory")
+ax.legend()
 fig.savefig(location + '/animal_velocity.png')
 close(fig)
 
@@ -385,14 +385,14 @@ V_y = TimedArray(velocity_array_y, dt=dt)
 print("Running the simulation")
 run(duration)
 
-figure(dpi=120)
+fig, ax = subplots()
 for i in range(N):
-    plot(State_n.v[i, :])
-title("Membrane potential for neurons in P_n over time")
-ylabel("Membrane Potential")
-xlabel("Time")
-savefig(location + '/animal_velocity.png')
-
+    ax.plot(State_n.v[i, :])
+fig.suptitle("Membrane potential for neurons in P_n over time")
+ax.ylabel("Membrane Potential")
+ax.xlabel("Time")
+fig.savefig(location + '/animal_velocity.png')
+close(fig)
 # ## Plot Connectivity
 
 # S:

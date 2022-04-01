@@ -2,7 +2,6 @@
 # coding: utf-8
 
 
-
 from brian2 import *
 #import numpy as np
 # from matplotlib import pyplot as plt
@@ -376,8 +375,6 @@ V_x = TimedArray(velocity_array_x, dt=dt)
 V_y = TimedArray(velocity_array_y, dt=dt)
 
 
-
-
 # print(V_x(1*second))
 
 
@@ -401,6 +398,10 @@ close(fig)
 # * 10 - 14: east > north, south, east, west, inh
 # 
 
+recordings = (State_n, State_e, State_w, State_s, State_i, M_n, M_e, M_w, M_s, M_i)
 
 
-
+recordings_filename = location + '/recordings'
+recordings_file = open(recordings_filename, 'wb')
+pickle.dump(recordings, recordings_file)
+recordings_file.close()

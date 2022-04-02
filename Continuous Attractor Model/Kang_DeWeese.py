@@ -236,111 +236,49 @@ State_s = StateMonitor(P_s, 'v', record = True)
 
 
 
-
-def exc_to_any_connectivity(N, dir_x, dir_y, same_pop=False):
-    """
-    Sets up the connectivity matrix between two excitatory populations.
-    N - number of neurons in each population
-    dir - directional tuning vector of pre_synaptic population
-    """
-    connectivity = zeros((N, N))
-    # connectivity = zeros(N**2) 
-   # dir = eval(dir) # convert string representation to list
-    for i in range(N): # looping over source neurons
-        i_x = i % N
-        i_y = i // N
-        for j in range(N): # looping over target neurons
-            j_x = j % N
-            j_y = j % N
-            
-            if same_pop and i ==  j:
-                connectivity[i, j] = 0
-            else:
-                r_x = j_x - i_x - xi*dir_x
-                r_y = j_y - i_y - xi*dir_y
-                distance = linalg.norm(array([r_x, r_y]))
-
-                if distance < r_w_plus:
-                    # connectivity[i, j] = w_mag_plus**(1 + cos(pi*sqrt((j_x - i_x - xi*dir_x)**2 + (j_y - i_y - xi*dir_y)**2)))
-                    connectivity[i, j] = w_mag_plus**((1 + cos(pi*distance/r_w_plus))/2)
-
-    return connectivity.flatten()
-
-
-def inh_to_exc_connectivity(N):
-    """
-    Sets up the connectivity matrix between two excitatory populations.
-    N - number of neurons in each population
-    dir - directional tuning vector of pre_synaptic population
-    """
-    connectivity = empty((N, N))
-
-    for i in range(N): # looping over source neurons
-        i_x = i % N
-        i_y = i // N
-        for j in range(N):
-            j_x = j % N
-            j_y = j % N
-
-            r_x = j_x - i_x 
-            r_y = j_y - i_y 
-            distance = linalg.norm(array([r_x, r_y]))
-
-            if distance < r_w_minus:
-                connectivity[i, j] = -w_mag_minus**((1 + cos(pi*distance/r_w_minus))/2)
-
-    return connectivity.flatten()
-
-
-
-S = [] # to store  the 25 synapse classes
-exc_populations = [P_n, P_s, P_e, P_w]
-all_populations = [P_n, P_s, P_e, P_w, P_i]
+S = []
+exc_populations = [P_n, P_e, P_w, P_s]
+all_populations = [P_n, P_e, P_w, P_s, P_i]
 index = 0
 
-# Set connections from excitatory to excitatory populations: (Total 16 iterations)
-print("Setting up exc-->exc connections")
+exc_to_all_model = """
+                    r = sqrt((x_post - x_pre)**2 + (y_post - y_pre)**2) : 1 (constant over dt)
+                    w : 1
+                    """
+inh_to_exc_model = '''
+                    r = sqrt((x_post - x_pre)**2 + (y_post - y_pre)**2) : 1 (constant over dt)
+                    w : 1 
+                    '''
+
+
+print("Setting exc >> all connections")
 for src in exc_populations:
-    print("Source po|pulation:", src.name)
-    for trg in exc_populations:
-        print("Target population:", trg)
-        S.append(Synapses(src, trg, 'w: 1', on_pre='v_post += w'))
-        if src == trg: # connection within the population     
-            S[index].connect(condition='i!=j') # if connection within population, don't connect neurons to themselves
-            # connectivity = exc_to_any_connectivity(N, src.dir, same_pop=True)
-            # S[index].w = 'connectivity[i, j]'
-            S[index].w = delete(exc_to_any_connectivity(N, src.dir_x/metre, src.dir_y/metre, same_pop=True).flatten(), range(0, N*N, N+1), 0) # deletes diagonal entries of connectivity before assigning it to weights
+    for trg in all_populations:
+        print("Synapse group index:", index)
+        S.append(Synapses(src, trg, exc_to_all_model, on_pre='v_post += w'))
+        if src == trg:
+            S[index].connect(condition='sqrt((x_post - x_pre)**2 + (y_post - y_pre)**2)/metre < r_w_plus and i!=j')
         else:
-            S[index].connect() # if connections are between two populations, connect all neurons
-            # connectivity = exc_to_any_connectivity(N, src.dir)
-            # S[index].w = 'connectivity[i, j]'
-            S[index].w = exc_to_any_connectivity(N, src.dir_x/metre, src.dir_y/metre).flatten()
-        S[index].delay = 'tau_s_plus_plus'
+            S[index].connect(condition='sqrt((x_post - x_pre)**2 + (y_post - y_pre)**2)/metre < r_w_plus')
+        S[index].w = 'w_mag_plus**((1 + cos(pi*r/r_w_plus))/2)'
+
+        # Synaptic Delay
+        if trg != P_i:
+            S[index].delay = tau_s_plus_plus
+        else:
+            S[index].delay = tau_s_minus_plus
+        
         index += 1
 
-# Set connections from excitatory to inhibitory population: (Total 4 iterations)
-print("Setting up exc-->inh connections")
-for i in exc_populations:
-    S.append(Synapses(i, P_i, 'w:1', on_pre='v_post += w'))
-    S[index].connect()
-    # connectivity = exc_to_any_connectivity(N, src.dir)
-    # S[index].w = 'connectivity[i, j]'
-    S[index].w = exc_to_any_connectivity(N, src.dir_x/metre, src.dir_y/metre).flatten()
-    S[index].delay = 'tau_s_minus_plus'
-    index += 1    
-
-# Set connections from inhibitory to excitatory neurons: (Total 4 iterations)
-print("Setting up inh-->exc connections")
-for i in exc_populations:
-    S.append(Synapses(P_i, i, 'w:1', on_pre='v_post += w'))
-    S[index].connect()
-    # connectivity = inh_to_exc_connectivity(N)
-    # S[index].w = 'connectivity[i, j]'
-    S[index].w = inh_to_exc_connectivity(N).flatten()
-    S[index].delay = 'tau_s_minus'
+# Inhibitory to excitatory connections
+print("Setting inh >> exc connections")
+for trg in exc_populations:
+    print("Synapse group index:", index)
+    S.append(Synapses(P_i, trg, inh_to_exc_model, on_pre = 'v_post += w'))
+    S[index].connect(condition = 'sqrt((x_post - x_pre)**2 + (y_post - y_pre)**2)/metre < 2 * r_w_minus')
+    S[index].delay = tau_s_minus
+    S[index].w = "- w_mag_minus**((1 + cos(pi*r/r_w_plus))/2)"
     index += 1
-
-# The inhibitory population doesn't have recurrent connections within itself
 
 
 #@title Simulated Velocity Inputs:
@@ -386,8 +324,8 @@ fig, ax = subplots()
 for i in range(N):
     ax.plot(State_n.v[i, :])
 fig.suptitle("Membrane potential for neurons in P_n over time")
-ax.ylabel("Membrane Potential")
-ax.xlabel("Time")
+ax.set_ylabel("Membrane Potential")
+ax.set_xlabel("Time")
 fig.savefig(location + '/animal_velocity.png')
 close(fig)
 # ## Plot Connectivity

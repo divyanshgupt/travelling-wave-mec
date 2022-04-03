@@ -295,7 +295,7 @@ def simulate_random_velocity(duration, dt, step_size):
 
     return x / second, y / second
 
-step_size = 0.001*metre
+step_size = 0.5*metre
 dt = 0.1*ms
 velocity_array_x, velocity_array_y = simulate_random_velocity(duration, dt, step_size)
 

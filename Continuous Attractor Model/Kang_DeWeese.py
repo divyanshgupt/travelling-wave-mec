@@ -340,7 +340,11 @@ print("Simulation over")
 
 print("Storing the recordings")
 
-recordings = (velocity_array_x, velocity_array_y, State_n, State_e, State_w, State_s, State_i, M_n, M_e, M_w, M_s, M_i)
+spike_rec = (M_n.get_states(['t', 'i']), M_e.get_states(['t', 'i']), M_w.get_states(['t', 'i']), M_s.get_states(['t', 'i']), M_i.get_states(['t', 'i']))
+state_rec = (State_n.get_states('v'), State_e.get_states('v'), State_w.get_states('v'), State_s.get_states('v'), State_i.get_states('v'))
+velocity_array = (velocity_array_x, velocity_array_y)
+
+recordings = (velocity_array, state_rec, spike_rec)
 
 
 recordings_filename = location + '/recordings'
@@ -348,4 +352,4 @@ recordings_file = open(recordings_filename, 'wb')
 pickle.dump(recordings, recordings_file)
 recordings_file.close()
 
-print("")
+print("Task Finished!")

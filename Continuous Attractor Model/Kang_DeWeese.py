@@ -160,16 +160,16 @@ v = 0
 
 
 
-#@check_units(i = 1, result = [metre for x in range(len(i))])
-@check_units(i = 1, N = 1, result = metre)
-def location_x(i, N):
-    x = i % N
-    return x * metre
+# #@check_units(i = 1, result = [metre for x in range(len(i))])
+# @check_units(i = 1, N = 1, result = metre)
+# def location_x(i, N):
+#     x = i % N
+#     return x * metre
 
-@check_units(i = 1, N = 1, result = metre)
-def location_y(i, N):
-    y = i // N
-    return y * metre
+# @check_units(i = 1, N = 1, result = metre)
+# def location_y(i, N):
+#     y = i // N
+#     return y * metre
 
 @implementation('numpy', discard_units=True)
 @check_units(x = 1, y = 1, N = 1, result = metre)
@@ -191,12 +191,12 @@ def a_plus_value(rho):
     
     return value
 
-@check_units(x = 1, y = 1, result = metre)
-def dir_array(x, y, N):
-    x_array = x * ones(N)
-    y_array = y * ones(N)
+# @check_units(x = 1, y = 1, result = metre)
+# def dir_array(x, y, N):
+#     x_array = x * ones(N)
+#     y_array = y * ones(N)
 
-    return column_stack((x_array, y_array)) * metre
+#     return column_stack((x_array, y_array)) * metre
 
 
 # Neural Populations
@@ -300,14 +300,14 @@ dt = 0.1*ms
 velocity_array_x, velocity_array_y = simulate_random_velocity(duration, dt, step_size)
 
 
-fig, ax = subplots()
-ax.plot(velocity_array_x[:], velocity_array_y[:])
-ax.plot(velocity_array_x[0], velocity_array_y[0], 'ro', color='black', label='start')
-ax.plot(velocity_array_x[-1], velocity_array_y[-1], 'ro', color='blue', label='stop')
-fig.suptitle("Rat Trajectory")
-ax.legend()
-fig.savefig(location + '/animal_velocity.png')
-close(fig)
+# fig, ax = subplots()
+# ax.plot(velocity_array_x[:], velocity_array_y[:])
+# ax.plot(velocity_array_x[0], velocity_array_y[0], 'ro', color='black', label='start')
+# ax.plot(velocity_array_x[-1], velocity_array_y[-1], 'ro', color='blue', label='stop')
+# fig.suptitle("Rat Trajectory")
+# ax.legend()
+# fig.savefig(location + '/animal_velocity.png')
+# close(fig)
 
 V_x = TimedArray(velocity_array_x, dt=dt)
 V_y = TimedArray(velocity_array_y, dt=dt)
@@ -320,14 +320,16 @@ V_y = TimedArray(velocity_array_y, dt=dt)
 print("Running the simulation")
 run(duration)
 
-fig, ax = subplots()
-for i in range(N):
-    ax.plot(State_n.v[i, :])
-fig.suptitle("Membrane potential for neurons in P_n over time")
-ax.set_ylabel("Membrane Potential")
-ax.set_xlabel("Time")
-fig.savefig(location + '/animal_velocity.png')
-close(fig)
+print("Simulation over")
+
+# fig, ax = subplots()
+# for i in range(N):
+#     ax.plot(State_n.v[i, :])
+# fig.suptitle("Membrane potential for neurons in P_n over time")
+# ax.set_ylabel("Membrane Potential")
+# ax.set_xlabel("Time")
+# fig.savefig(location + '/animal_velocity.png')
+# close(fig)
 # ## Plot Connectivity
 
 # S:
@@ -336,10 +338,14 @@ close(fig)
 # * 10 - 14: east > north, south, east, west, inh
 # 
 
-recordings = (State_n, State_e, State_w, State_s, State_i, M_n, M_e, M_w, M_s, M_i)
+print("Storing the recordings")
+
+recordings = (velocity_array_x, velocity_array_y, State_n, State_e, State_w, State_s, State_i, M_n, M_e, M_w, M_s, M_i)
 
 
 recordings_filename = location + '/recordings'
 recordings_file = open(recordings_filename, 'wb')
 pickle.dump(recordings, recordings_file)
 recordings_file.close()
+
+print("")

@@ -47,7 +47,7 @@ var_zeta_I = 0.002**2 # Inh. noise magnitude
 
 duration = 1000*ms
 
-defaultclock.dt = 0.1*ms
+dt = defaultclock.dt = 0.1*ms
 
 
 
@@ -283,21 +283,21 @@ for trg in exc_populations:
 
 #@title Simulated Velocity Inputs:
 
-def simulate_random_velocity(duration, dt, step_size):
-    """
-    Inputs
+# def simulate_random_velocity(duration, dt, step_size):
+#     """
+#     Inputs
     
-    """
-    x = step_size * cumsum((random(int(duration/dt)) - 0.5))
-    y = step_size * cumsum((random(int(duration/dt)) - 0.5))
+#     """
+#     x = step_size * cumsum((random(int(duration/dt)) - 0.5))
+#     y = step_size * cumsum((random(int(duration/dt)) - 0.5))
 
-    # velocity = column_stack((x, y))
+#     # velocity = column_stack((x, y))
 
-    return x / second, y / second
+#     return x / second, y / second
 
-step_size = 0.5*metre
-dt = 0.1*ms
-velocity_array_x, velocity_array_y = simulate_random_velocity(duration, dt, step_size)
+# step_size = 0.5*metre
+# dt = 0.1*ms
+# velocity_array_x, velocity_array_y = simulate_random_velocity(duration, dt, step_size)
 
 
 # fig, ax = subplots()
@@ -309,8 +309,68 @@ velocity_array_x, velocity_array_y = simulate_random_velocity(duration, dt, step
 # fig.savefig(location + '/animal_velocity.png')
 # close(fig)
 
-V_x = TimedArray(velocity_array_x, dt=dt)
-V_y = TimedArray(velocity_array_y, dt=dt)
+
+def within_boundary(x, y, n):
+    if x < n and y < n and y > 0 and x > 0:
+        return True
+    else:
+        return False
+
+def close_to_boundary(x, y, n, epsilon):
+    if abs(x - n) < epsilon:
+        return True
+    elif abs(y -n) < epsilon:
+        return True
+    elif abs(x - 0) < epsilon:
+        return True
+    elif  abs(y - 0) < epsilon:
+        return True
+    else:
+        return False
+
+def get_trajectory(n, step_size, dt, duration, epsilon=0.05):
+    """
+    n - size of neural sheet (also size of field for animal)
+    step_size - each step is drawn from a uniform distribution over [0, step_size]
+    dt - timestep size (in ms)
+    duration - total simulation size (in ms)
+    """
+
+    nb_steps = int(duration/dt)
+    angle = zeros(nb_steps)
+    x = empty(nb_steps + 1)
+    y = empty(nb_steps + 1)
+    x[0] = y[0] = n/2
+
+    for i in range(1, nb_steps+1):
+
+
+        if close_to_boundary(x[i-1], y[i-1],n, epsilon):
+            new_angle = np.random.uniform(0, 2*pi)
+        else:
+            new_angle = np.random.uniform(-pi/36, pi/36)
+
+        step = np.random.uniform(0, step_size)
+        x[i] = x[i-1] + step*sin(angle[i-1] + new_angle)
+        y[i] = y[i-1] + step*cos(angle[i-1] + new_angle)
+        
+        while not(within_boundary(x[i], y[i], n)):
+            new_angle = np.random.uniform(-pi/36, pi/36)
+            step = np.random.uniform(0, step_size)
+            x[i] = x[i-1] + step*sin(angle[i-1] + new_angle)
+            y[i] = y[i-1] + step*cos(angle[i-1] + new_angle)
+        
+        angle += new_angle
+            
+    velocity_array = column_stack((diff(x)/dt, diff(y)/dt))
+    position_array = column_stack((x, y))
+    return position_array, velocity_array, angle
+
+
+
+trajectory, velocity_array, angle = get_trajectory(n, 0.4, 0.1, 1000)
+V_x = TimedArray(velocity_array[:, 0], dt=dt)
+V_y = TimedArray(velocity_array[:, 1], dt=dt)
 
 
 # print(V_x(1*second))
@@ -342,9 +402,9 @@ print("Storing the recordings")
 
 spike_rec = (M_n.get_states(['t', 'i']), M_e.get_states(['t', 'i']), M_w.get_states(['t', 'i']), M_s.get_states(['t', 'i']), M_i.get_states(['t', 'i']))
 state_rec = (State_n.get_states('v'), State_e.get_states('v'), State_w.get_states('v'), State_s.get_states('v'), State_i.get_states('v'))
-velocity_array = (velocity_array_x, velocity_array_y)
 
-recordings = (velocity_array, state_rec, spike_rec)
+
+recordings = (trajectory, velocity_array, state_rec, spike_rec)
 
 
 recordings_filename = location + '/recordings'

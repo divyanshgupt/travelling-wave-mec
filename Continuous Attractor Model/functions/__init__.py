@@ -1,1 +1,1 @@
-from .connectivity_matrix import *
+from .equations import *

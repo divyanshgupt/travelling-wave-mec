@@ -54,8 +54,8 @@ S = src.set_synapses(exc_populations, all_populations)
 # trajectory, velocity_array, angle = src.smooth_random_trajectory(n, 0.4, 0.1, 1000)
 speed = 0.1 # m/sec
 trajectory, velocity_array = src.straight_trajectory(dt, duration, speed)
-V_x = TimedArray(velocity_array[:, 0], dt=dt) * metre/second
-V_y = TimedArray(velocity_array[:, 1], dt=dt) * metre/second
+V_x = TimedArray(velocity_array[:, 0], dt=dt)
+V_y = TimedArray(velocity_array[:, 1], dt=dt)
 
 print("Running the simulation")
 run(duration)

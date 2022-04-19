@@ -90,7 +90,7 @@ def straight_trajectory(dt, duration, speed):
     velocity_x = diff(x)/dt
     velocity_y = diff(y)/dt
 
-    velocity = column_stack((velocity_x, velocity_y))
+    velocity = column_stack((velocity_x, velocity_y)) *metre/second
     trajectory = column_stack((x, y))
 
 

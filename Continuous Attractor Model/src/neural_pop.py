@@ -3,8 +3,10 @@ from src.params import *
 from brian2 import *
 
 # Neural Populations
-def generate_populations(N):
+def generate_populations(N, rec_idxs=None):
+    """
     
+    """
     ## North
     P_n = NeuronGroup(N, src.eqns_exc_n, threshold='v > 1', reset=src.reset, method='euler')
     P_n.v = 'rand()'
@@ -27,16 +29,16 @@ def generate_populations(N):
     M_w = SpikeMonitor(P_w)
     M_i = SpikeMonitor(P_i)
 
-    State_i = StateMonitor(P_i, 'v', record=True)
-    State_n = StateMonitor(P_n, 'v', record=True)
-    State_e = StateMonitor(P_e, 'v', record = True)
-    State_w = StateMonitor(P_w, 'v', record = True)
-    State_s = StateMonitor(P_s, 'v', record = True)
+    # State_i = StateMonitor(P_i, 'v', record=True)
+    # State_n = StateMonitor(P_n, 'v', record=True)
+    # State_e = StateMonitor(P_e, 'v', record = True)
+    # State_w = StateMonitor(P_w, 'v', record = True)
+    # State_s = StateMonitor(P_s, 'v', record = True)
 
     neural_pops = [P_n, P_e, P_w, P_s, P_i]
     spike_mons = [M_n, M_e, M_w, M_s, M_i]
-    state_mons = [State_n, State_e, State_w, State_s, State_i]
+    # state_mons = [State_n, State_e, State_w, State_s, State_i]
  
-    return neural_pops, spike_mons, state_mons
+    return neural_pops, spike_mons#, state_mons
 
     

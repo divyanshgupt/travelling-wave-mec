@@ -37,7 +37,7 @@ def smooth_random_trajectory(n, step_size, dt, duration, epsilon=0.05):
     step_size - each step is drawn from a uniform distribution over [0, step_size]
     dt - timestep size (in ms)
     duration - total simulation size (in ms)
-    
+
     """
 
     nb_steps = int(duration/dt)
@@ -72,11 +72,26 @@ def smooth_random_trajectory(n, step_size, dt, duration, epsilon=0.05):
     return position_array, velocity_array, angle
 
 
-def straight_trajectory(dt, duration):
-    """ """
+def straight_trajectory(dt, duration, speed):
+    """
     
+    Args:
+        dt - 
+        duration - 
+        speed - in metres/sec
+    """
     
+    nb_steps = int(duration/dt)
+    angle = np.random.random()*2*pi
+    
+    x = cos(angle)*arange(0, nb_steps+1)*speed*dt
+    y = sin(angle)*arange(0, nb_steps+1)*speed*dt
 
+    velocity_x = diff(x)/dt
+    velocity_y = diff(y)/dt
+
+    velocity = column_stack((velocity_x, velocity_y))
+    trajectory = column_stack((x, y))
 
 
     return trajectory, velocity

@@ -60,9 +60,9 @@ V_y = TimedArray(velocity_array[:, 1], dt=dt)
 print("Running the simulation")
 net = Network(collect())
 net.add(spike_mons)
+net.run(duration)
 
-
-run(duration)
+# run(duration)
 
 print("Simulation over")
 

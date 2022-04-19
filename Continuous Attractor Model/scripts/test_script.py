@@ -101,20 +101,28 @@ for trg in exc_populations:
     S[index].w = "- w_mag_minus*((1 - cos(pi*sqrt((x_post - x_pre)**2 + (y_post - y_pre)**2)/r_w_plus))/2)"
     index += 1
 
-speed = 0.1 # m/sec
-# trajectory, velocity_array = src.straight_trajectory(dt, duration, speed)
+
+### Velocity
+# speed = 0.1 # m/sec
+# # trajectory, velocity_array = src.straight_trajectory(dt, duration, speed)
+
+# nb_steps = int(duration/dt)
+# angle = np.random.random()*2*pi
+
+# x = cos(angle)*arange(0, nb_steps+1)*speed*dt
+# y = sin(angle)*arange(0, nb_steps+1)*speed*dt
+
+# velocity_x = diff(x)/dt
+# velocity_y = diff(y)/dt
+
+# velocity_array = column_stack((velocity_x, velocity_y)) *metre/second
+# trajectory = column_stack((x, y))
 
 nb_steps = int(duration/dt)
-angle = np.random.random()*2*pi
+x = zeros(nb_steps)
+y = zeros(nb_steps)
+velocity_array = column_stack((x, y))
 
-x = cos(angle)*arange(0, nb_steps+1)*speed*dt
-y = sin(angle)*arange(0, nb_steps+1)*speed*dt
-
-velocity_x = diff(x)/dt
-velocity_y = diff(y)/dt
-
-velocity_array = column_stack((velocity_x, velocity_y)) *metre/second
-trajectory = column_stack((x, y))
 V_x = TimedArray(velocity_array[:, 0], dt=dt)
 V_y = TimedArray(velocity_array[:, 1], dt=dt)
 
@@ -129,8 +137,8 @@ print("Simulation over")
 
 print("Storing the recordings")
 spike_rec = (M_n.get_states(['t', 'i']), M_e.get_states(['t', 'i']), M_w.get_states(['t', 'i']), M_s.get_states(['t', 'i']), M_i.get_states(['t', 'i']))
-recordings = (trajectory, velocity_array, spike_rec)
-
+# recordings = (trajectory, velocity_array, spike_rec)
+recordings = (velocity_array, spike_rec)
 src.save_data(recordings, location, 'recordings', method='pickle')
 
 print("Task Finished!")

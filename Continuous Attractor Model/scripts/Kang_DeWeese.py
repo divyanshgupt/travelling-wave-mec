@@ -5,7 +5,7 @@ from brian2 import *
 #import numpy as np
 #from matplotlib import pyplot as plt
 import pickle
-import datetime
+from datetime import datetime
 import os
 import src
 from src.params import *
@@ -20,7 +20,7 @@ dt = defaultclock.dt = 0.1*ms
 # rec_idxs = src.rand_indices(150, )
 
 # Generate Neural Populations
-neural_pops, spike_mons = src.generate_populations(N, rec_idxs)
+neural_pops, spike_mons = src.generate_populations(N)
 P_n, P_s, P_e, P_w, P_i = neural_pops
 M_n, M_s, M_e, M_w, M_i = spike_mons
 # State_i, State_n, State_e, State_w, State_s = state_mons

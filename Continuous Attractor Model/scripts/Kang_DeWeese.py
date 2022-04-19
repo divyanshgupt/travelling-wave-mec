@@ -5,12 +5,12 @@ from brian2 import *
 #import numpy as np
 #from matplotlib import pyplot as plt
 import pickle
-from datetime import datetime
+import datetime
 import os
 import src
 from src.params import *
 
-date_stamp = str(datetime.today())[:13]
+date_stamp = str(datetime.datetime.today())[:13]
 location = src.set_location(f'../data/{date_stamp}')
 start_scope() # creat a new scope
 

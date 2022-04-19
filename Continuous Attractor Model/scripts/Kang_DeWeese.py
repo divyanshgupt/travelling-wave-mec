@@ -19,6 +19,25 @@ dt = defaultclock.dt = 0.1*ms
 # # Initialise indices to record from:
 # rec_idxs = src.rand_indices(150, )
 
+@implementation('numpy', discard_units=True)
+@check_units(x = 1, y = 1, N = 1, result = metre)
+def rho_value(x, y, N):
+
+    value = sqrt(((x - ((N+1)/2))**2 + (y - ((N+1)/2))**2)/(N/2))
+
+    return value * metre
+
+
+@implementation('numpy', discard_units=True)
+@check_units(rho = 1, result = 1)
+def a_plus_value(rho):
+
+    if rho < rho_a_plus:
+        value = (a_max_plus - a_min_plus) * (1 - cos(pi*rho/rho_a_plus))
+    else:
+        value = a_min_plus
+    
+    return value
 # Generate Neural Populations
 neural_pops, spike_mons = src.generate_populations(N)
 P_n, P_s, P_e, P_w, P_i = neural_pops

@@ -1,38 +1,44 @@
 from brian2 import *
-#import numpy as np
-#from matplotlib import pyplot as plt
-import pickle
-import datetime
-import os
-from src.params import *
-import src
+import numpy as np
+# from matplotlib import pyplot as plt
+from tqdm import tqdm
+from matplotlib.animation import FuncAnimation
+
+
+
 start_scope() # creat a new scope
 
-dt = defaultclock.dt = 0.1*ms
 
-date_stamp = str(datetime.datetime.today())[:13]
-location = src.set_location(f'../data/{date_stamp}')
-start_scope() # creat a new scope
+# Parameters
+n = 80
+N = 232 * 232 # Neurons per population
+N = n * n
 
-@implementation('numpy', discard_units=True)
-@check_units(x = 1, y = 1, N = 1, result = metre)
-def rho_value(x, y, N):
+tau_m_plus = 40*ms # Exc. membrane time constant
+tau_m_minus = 20*ms # Inh. membrane time constant
+tau_s_plus_plus = 5*ms # Exc.-to-exc. synaptic delay
+tau_s_minus_plus = 2*ms # Exc.-to-inh. synaptic delay
+tau_s_minus = 2*ms # Inh. synaptic delay
+a_max_plus = 2 # Exc. drive maximum
+a_min_plus = 0.8 # Exc. drive minimum
+rho_a_plus = 1.2 * (n/232) # Exc. drive scaled speed
+# a_mag_minus = 0.72 # Inh. drive magnitude
+a_th_minus = 0.2 # Inh. drive theta amplitude
+f = 8*hertz # Inh. drive theta frequency
 
-    value = sqrt(((x - ((N+1)/2))**2 + (y - ((N+1)/2))**2)/(N/2))
+a_mag_minus = 0.9 # Inh. drive magnitude
+w_mag_plus = 0.2  # Exc. synaptic strength
+r_w_plus = 6  # Exc. synaptic spread
+w_mag_minus = 2.8 # Inh. synaptic strength
+r_w_minus = 12 # Inh. synaptic distance
+exc_xi = 3 # Exc. synaptic shift
 
-    return value * metre
+alpha = 0.25*second/metre # Exc. velocity gain
+sig_zeta_P = 0.002 # Exc. noise std. dev
+sig_zeta_I = 0.002 # Inh. noise std. dev
+duration = 1000*ms
 
-
-@implementation('numpy', discard_units=True)
-@check_units(rho = 1, result = 1)
-def a_plus_value(rho):
-
-    if rho < rho_a_plus:
-        value = (a_max_plus - a_min_plus) * (1 - cos(pi*rho/rho_a_plus))
-    else:
-        value = a_min_plus
-    
-    return value
+defaultclock.dt = 0.1*ms
 
 eqns_exc_n = '''
 
@@ -67,7 +73,6 @@ rho = rho_value(x, y, N) : metre (constant over dt)
 a_plus = a_plus_value(rho / metre) : 1 (constant over dt)
 
 dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus*(1 + alpha*((dir_x * V_x(t)) + (dir_y * V_y(t))))/tau_m_plus : 1
-
 '''
 
 eqns_exc_e = '''
@@ -122,22 +127,50 @@ dv/dt = -(v - a_minus)/tau_m_minus + sig_zeta_I*xi*tau_m_minus**-0.5 : 1
 a_minus = a_mag_minus - a_th_minus*cos(2*pi*f*t): 1
 
 '''
-print(f'Number of neurons in each of the five populations:{N} ')
+
+reset = '''
+v = 0
+'''
+@implementation('numpy', discard_units=True)
+@check_units(x = 1, y = 1, N = 1, result = metre)
+def rho_value(x, y, N):
+
+    value = sqrt(((x - ((N+1)/2))**2 + (y - ((N+1)/2))**2)/(N/2))
+
+    return value * metre
+
+
+@implementation('numpy', discard_units=True)
+@check_units(rho = 1, result = 1)
+def a_plus_value(rho):
+
+    if rho < rho_a_plus:
+        value = (a_max_plus - a_min_plus) * (1 - cos(pi*rho/rho_a_plus))
+    else:
+        value = a_min_plus
+    
+    return value
+
+# Neural Populations
 
 ## North
-P_n = NeuronGroup(N, eqns_exc_n, threshold='v > 1', reset=src.reset, method='euler')
+P_n = NeuronGroup(N, eqns_exc_n, threshold='v > 1', reset=reset, method='euler')
 P_n.v = 'rand()'
+
 ## South
-P_s = NeuronGroup(N, eqns_exc_s, threshold='v > 1', reset=src.reset, method='euler')
+P_s = NeuronGroup(N, eqns_exc_s, threshold='v > 1', reset=reset, method='euler')
 P_s.v = 'rand()'
+
 ## East
-P_e = NeuronGroup(N, eqns_exc_e, threshold='v > 1', reset=src.reset, method='euler')
+P_e = NeuronGroup(N, eqns_exc_e, threshold='v > 1', reset=reset, method='euler')
 P_e.v = 'rand()'
+
 ## West
-P_w = NeuronGroup(N, eqns_exc_w, threshold='v > 1', reset=src.reset, method='euler' )
+P_w = NeuronGroup(N, eqns_exc_w, threshold='v > 1', reset=reset, method='euler' )
 P_w.v = 'rand()'
+
 ## Inhibitory
-P_i = NeuronGroup(N, eqns_inh, threshold='v > 1', reset=src.reset, method='euler' )
+P_i = NeuronGroup(N, eqns_inh, threshold='v > 1', reset=reset, method='euler' )
 P_i.v = 'rand()'
 
 M_n = SpikeMonitor(P_n)
@@ -146,19 +179,19 @@ M_e = SpikeMonitor(P_e)
 M_w = SpikeMonitor(P_w)
 M_i = SpikeMonitor(P_i)
 
+S = []
 exc_populations = [P_n, P_e, P_w, P_s]
 all_populations = [P_n, P_e, P_w, P_s, P_i]
-
+index = 0
 
 exc_to_all_model = """
                     w : 1
                     """
 inh_to_exc_model = '''
-                    w : 1  
+                    w : 1 
                     '''
-S = []
-index = 0
-P_i = all_populations[-1]
+
+
 print("Setting exc >> all connections")
 for src in exc_populations:
     for trg in all_populations:
@@ -191,44 +224,20 @@ for trg in exc_populations:
     S[index].w = "- w_mag_minus*((1 - cos(pi*sqrt((x_post - x_pre)**2 + (y_post - y_pre)**2)/r_w_plus))/2)"
     index += 1
 
+def zero_velocity(dt, duration):
+    nb_steps = int(duration/dt)
+    x = zeros(nb_steps)
+    y = zeros(nb_steps)
+    velocity = column_stack((x, y))
+    return velocity
 
-### Velocity
-# speed = 0.1 # m/sec
-# # trajectory, velocity_array = src.straight_trajectory(dt, duration, speed)
+velocity = zero_velocity(defaultclock.dt, duration)
 
-# nb_steps = int(duration/dt)
-# angle = np.random.random()*2*pi
+dt = defaultclock.dt
+V_x = TimedArray(velocity[:, 0]*metre/second, dt=dt)
+V_y = TimedArray(velocity[:, 1]*metre/second, dt=dt)
 
-# x = cos(angle)*arange(0, nb_steps+1)*speed*dt
-# y = sin(angle)*arange(0, nb_steps+1)*speed*dt
-
-# velocity_x = diff(x)/dt
-# velocity_y = diff(y)/dt
-
-# velocity_array = column_stack((velocity_x, velocity_y)) *metre/second
-# trajectory = column_stack((x, y))
-
-nb_steps = int(duration/dt)
-x = zeros(nb_steps)
-y = zeros(nb_steps)
-velocity_array = column_stack((x, y)) * metre/second
-
-V_x = TimedArray(velocity_array[:, 0], dt=dt)
-V_y = TimedArray(velocity_array[:, 1], dt=dt)
 
 print("Running the simulation")
-# net = Network(collect())
-# net.add(spike_mons)
-# net.run(duration)
-
 run(duration)
-
-print("Simulation over")
-
-print("Storing the recordings")
-spike_rec = (M_n.get_states(['t', 'i']), M_e.get_states(['t', 'i']), M_w.get_states(['t', 'i']), M_s.get_states(['t', 'i']), M_i.get_states(['t', 'i']))
-# recordings = (trajectory, velocity_array, spike_rec)
-recordings = (velocity_array, spike_rec)
-src.save_data(recordings, location, 'recordings', method='pickle')
-
-print("Task Finished!")
+print("Simulation finished")

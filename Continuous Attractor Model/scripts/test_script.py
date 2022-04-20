@@ -34,20 +34,110 @@ def a_plus_value(rho):
     
     return value
 
+eqns_exc_n = '''
+
+x = i % sqrt(N) : 1
+y = i // sqrt(N): 1
+
+# Specify preferred direction
+dir_x = 0 : 1
+dir_y = 1 : 1
+
+# Distance from centre
+rho = rho_value(x, y, N) : metre (constant over dt)
+
+a_plus = a_plus_value(rho / metre) : 1 (constant over dt)
+
+dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus*(1 + alpha*((dir_x * V_x(t)) + (dir_y * V_y(t))))/tau_m_plus : 1
+
+'''
+
+eqns_exc_s = '''
+
+x = i % sqrt(N) : 1
+y = i // sqrt(N): 1
+
+# Specify preferred direction
+dir_x = 0 : 1
+dir_y = -1 : 1
+
+# Distance from centre
+rho = rho_value(x, y, N) : metre (constant over dt)
+
+a_plus = a_plus_value(rho / metre) : 1 (constant over dt)
+
+dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus*(1 + alpha*((dir_x * V_x(t)) + (dir_y * V_y(t))))/tau_m_plus : 1
+
+'''
+
+eqns_exc_e = '''
+
+x = i % sqrt(N) : 1
+y = i // sqrt(N): 1
+
+# Specify preferred direction
+dir_x = 1 : 1
+dir_y = 0 : 1
+
+# Distance from centre
+rho = rho_value(x, y, N) : metre (constant over dt)
+
+a_plus = a_plus_value(rho / metre) : 1 (constant over dt)
+
+dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus*(1 + alpha*((dir_x * V_x(t)) + (dir_y * V_y(t))))/tau_m_plus : 1
+'''
+
+eqns_exc_w = '''
+
+x = i % sqrt(N) : 1
+y = i // sqrt(N): 1
+
+# Specify preferred direction
+dir_x = -1 : 1
+dir_y = 0 : 1
+
+# Distance from centre
+rho = rho_value(x, y, N) : metre (constant over dt)
+
+a_plus = a_plus_value(rho / metre) : 1 (constant over dt)
+
+dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus*(1 + alpha*((dir_x * V_x(t)) + (dir_y * V_y(t))))/tau_m_plus : 1
+'''
+
+
+""" 
+eqns_exc = '''
+
+dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus/tau_m_plus : 1
+
+'''  """
+
+eqns_inh = '''
+
+x = i % sqrt(N) : 1
+y = i // sqrt(N): 1
+
+dv/dt = -(v - a_minus)/tau_m_minus + sig_zeta_I*xi*tau_m_minus**-0.5 : 1
+
+a_minus = a_mag_minus - a_th_minus*cos(2*pi*f*t): 1
+
+'''
+
+
 ## North
-P_n = NeuronGroup(N, src.eqns_exc_n, threshold='v > 1', reset=src.reset, method='euler')
+P_n = NeuronGroup(N, eqns_exc_n, threshold='v > 1', reset=src.reset, method='euler')
 P_n.v = 'rand()'
 ## South
-P_s = NeuronGroup(N, src.eqns_exc_s, threshold='v > 1', reset=src.reset, method='euler')
+P_s = NeuronGroup(N, eqns_exc_s, threshold='v > 1', reset=src.reset, method='euler')
 P_s.v = 'rand()'
 ## East
-P_e = NeuronGroup(N, src.eqns_exc_e, threshold='v > 1', reset=src.reset, method='euler')
+P_e = NeuronGroup(N, eqns_exc_e, threshold='v > 1', reset=src.reset, method='euler')
 P_e.v = 'rand()'
 ## West
-P_w = NeuronGroup(N, src.eqns_exc_w, threshold='v > 1', reset=src.reset, method='euler' )
+P_w = NeuronGroup(N, eqns_exc_w, threshold='v > 1', reset=src.reset, method='euler' )
 P_w.v = 'rand()'
 ## Inhibitory
-P_i = NeuronGroup(N, src.eqns_inh, threshold='v > 1', reset=src.reset, method='euler' )
+P_i = NeuronGroup(N, eqns_inh, threshold='v > 1', reset=src.reset, method='euler' )
 P_i.v = 'rand()'
 
 M_n = SpikeMonitor(P_n)
@@ -64,7 +154,7 @@ exc_to_all_model = """
                     w : 1
                     """
 inh_to_exc_model = '''
-                    w : 1 
+                    w : 1  
                     '''
 S = []
 index = 0

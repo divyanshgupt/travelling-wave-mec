@@ -211,7 +211,7 @@ for trg in exc_populations:
 nb_steps = int(duration/dt)
 x = zeros(nb_steps)
 y = zeros(nb_steps)
-velocity_array = column_stack((x, y))
+velocity_array = column_stack((x, y)) * metre/second
 
 V_x = TimedArray(velocity_array[:, 0], dt=dt)
 V_y = TimedArray(velocity_array[:, 1], dt=dt)

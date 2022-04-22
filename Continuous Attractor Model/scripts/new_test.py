@@ -138,7 +138,7 @@ print("Connections set!")
 
 print("Initializing rat trajectory")
 dt = defaultclock.dt
-trajectory, velocity = str.straight_trajectory(dt, duration, 0.1)
+trajectory, velocity = src.straight_trajectory(dt, duration, 0.1)
 V_x = TimedArray(velocity[:, 0], dt=dt)
 V_y = TimedArray(velocity[:, 1], dt=dt)
 print("Trajectory set!")

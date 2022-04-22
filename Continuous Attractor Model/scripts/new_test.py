@@ -130,8 +130,8 @@ def straight_trajectory(dt, duration, speed):
     angle = np.random.random()*2*pi   
     x = cos(angle)*arange(0, nb_steps+1)*speed*dt
     y = sin(angle)*arange(0, nb_steps+1)*speed*dt
-    velocity_x = diff(x)/dt * metre/second
-    velocity_y = diff(y)/dt * metre/second
+    velocity_x = diff(x)/dt
+    velocity_y = diff(y)/dt
 
     velocity = column_stack((velocity_x, velocity_y))
     trajectory = column_stack((x, y))
@@ -142,8 +142,8 @@ print("Initializing rat trajectory")
 # print(f'Straight Trajectory Function type:{type(src.straight_trajectory)}')
 dt = defaultclock.dt
 trajectory, velocity = straight_trajectory(dt, duration, 0.1)
-V_x = TimedArray(velocity[:, 0], dt=dt)
-V_y = TimedArray(velocity[:, 1], dt=dt)
+V_x = TimedArray(velocity[:, 0] * metre/second, dt=dt)
+V_y = TimedArray(velocity[:, 1] * metre/second, dt=dt)
 print("Trajectory set!")
 
 

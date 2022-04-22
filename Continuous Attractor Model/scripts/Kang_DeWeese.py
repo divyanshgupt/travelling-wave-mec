@@ -50,12 +50,35 @@ all_populations = [P_n, P_e, P_w, P_s, P_i]
 
 S = src.set_synapses(exc_populations, all_populations)
 
+print("Connections set")
+
 # Generate velocity array
-# trajectory, velocity_array, angle = src.smooth_random_trajectory(n, 0.4, 0.1, 1000)
-speed = 0.1 # m/sec
-trajectory, velocity_array = src.straight_trajectory(dt, duration, speed)
-V_x = TimedArray(velocity_array[:, 0], dt=dt)
-V_y = TimedArray(velocity_array[:, 1], dt=dt)
+def straight_trajectory(dt, duration, speed):
+    """
+    Args:
+        dt - 
+        duration - 
+        speed - in metres/sec
+    """
+    nb_steps = int(duration/dt)
+    angle = np.random.random()*2*pi   
+    x = cos(angle)*arange(0, nb_steps+1)*speed*dt
+    y = sin(angle)*arange(0, nb_steps+1)*speed*dt
+    velocity_x = diff(x)/dt
+    velocity_y = diff(y)/dt
+
+    velocity = column_stack((velocity_x, velocity_y))
+    trajectory = column_stack((x, y))
+
+    return trajectory, velocity
+
+print("Initializing rat trajectory")
+# print(f'Straight Trajectory Function type:{type(src.straight_trajectory)}')
+dt = defaultclock.dt
+trajectory, velocity = straight_trajectory(dt, duration, 0.1)
+V_x = TimedArray(velocity[:, 0] * metre/second, dt=dt)
+V_y = TimedArray(velocity[:, 1] * metre/second, dt=dt)
+print("Trajectory set!")
 
 print("Running the simulation")
 net = Network(collect())
@@ -74,7 +97,7 @@ spike_rec = (M_n.get_states(['t', 'i']), M_e.get_states(['t', 'i']), M_w.get_sta
 
 # recordings = (trajectory, velocity_array, state_rec, spike_rec)
 
-recordings = (trajectory, velocity_array, spike_rec)
+recordings = (trajectory, velocity, spike_rec)
 
 src.save_data(recordings, location, 'recordings', method='pickle')
 

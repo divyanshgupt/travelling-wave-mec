@@ -5,42 +5,43 @@ from tqdm import tqdm
 from matplotlib.animation import FuncAnimation
 from matplotlib import animation
 import src
+from src.params import *
 
 start_scope() # creat a new scope
 
 
-# Parameters
-n = 80
-N = 232 * 232 # Neurons per population
-N = n * n
+# # Parameters
+# n = 80
+# N = 232 * 232 # Neurons per population
+# N = n * n
 
-tau_m_plus = 40*ms # Exc. membrane time constant
-tau_m_minus = 20*ms # Inh. membrane time constant
-tau_s_plus_plus = 5*ms # Exc.-to-exc. synaptic delay
-tau_s_minus_plus = 2*ms # Exc.-to-inh. synaptic delay
-tau_s_minus = 2*ms # Inh. synaptic delay
-a_max_plus = 2 # Exc. drive maximum
-a_min_plus = 0.8 # Exc. drive minimum
-rho_a_plus = 1.2 * (n/232) # Exc. drive scaled speed
-# a_mag_minus = 0.72 # Inh. drive magnitude
-a_th_minus = 0.2 # Inh. drive theta amplitude
-f = 8*hertz # Inh. drive theta frequency
+# tau_m_plus = 40*ms # Exc. membrane time constant
+# tau_m_minus = 20*ms # Inh. membrane time constant
+# tau_s_plus_plus = 5*ms # Exc.-to-exc. synaptic delay
+# tau_s_minus_plus = 2*ms # Exc.-to-inh. synaptic delay
+# tau_s_minus = 2*ms # Inh. synaptic delay
+# a_max_plus = 2 # Exc. drive maximum
+# a_min_plus = 0.8 # Exc. drive minimum
+# rho_a_plus = 1.2 * (n/232) # Exc. drive scaled speed
+# # a_mag_minus = 0.72 # Inh. drive magnitude
+# a_th_minus = 0.2 # Inh. drive theta amplitude
+# f = 8*hertz # Inh. drive theta frequency
 
-a_mag_minus = 0.9 # Inh. drive magnitude
-w_mag_plus = 0.2  # Exc. synaptic strength
-r_w_plus = 6  # Exc. synaptic spread
-w_mag_minus = 2.8 # Inh. synaptic strength
-r_w_minus = 12 # Inh. synaptic distance
-exc_xi = 3 # Exc. synaptic shift
-alpha = 0.25*second/metre # Exc. velocity gain
-# var_zeta_P = 0.002**2 # Exc. noise magnitude
-# var_zeta_I = 0.002**2 # Inh. noise magnitude
+# a_mag_minus = 0.9 # Inh. drive magnitude
+# w_mag_plus = 0.2  # Exc. synaptic strength
+# r_w_plus = 6  # Exc. synaptic spread
+# w_mag_minus = 2.8 # Inh. synaptic strength
+# r_w_minus = 12 # Inh. synaptic distance
+# exc_xi = 3 # Exc. synaptic shift
+# alpha = 0.25*second/metre # Exc. velocity gain
+# # var_zeta_P = 0.002**2 # Exc. noise magnitude
+# # var_zeta_I = 0.002**2 # Inh. noise magnitude
 
-sig_zeta_P = 0.002 # Exc. noise std. dev
-sig_zeta_I = 0.002 # Inh. noise std. dev
-duration = 1000*ms
+# sig_zeta_P = 0.002 # Exc. noise std. dev
+# sig_zeta_I = 0.002 # Inh. noise std. dev
+# duration = 1000*ms
 
-defaultclock.dt = 0.1*ms
+# defaultclock.dt = 0.1*ms
 
 
 
@@ -159,23 +160,23 @@ def a_plus_value(rho):
 # Neural Populations
 
 ## North
-P_n = NeuronGroup(N, src.eqns_exc_n, threshold='v > 1', reset=reset, method='euler')
+P_n = NeuronGroup(N, src.eqns_exc_n, threshold='v > 1', reset=src.reset, method='euler')
 P_n.v = 'rand()'
 
 ## South
-P_s = NeuronGroup(N, src.eqns_exc_s, threshold='v > 1', reset=reset, method='euler')
+P_s = NeuronGroup(N, src.eqns_exc_s, threshold='v > 1', reset=src.reset, method='euler')
 P_s.v = 'rand()'
 
 ## East
-P_e = NeuronGroup(N, src.eqns_exc_e, threshold='v > 1', reset=reset, method='euler')
+P_e = NeuronGroup(N, src.eqns_exc_e, threshold='v > 1', reset=src.reset, method='euler')
 P_e.v = 'rand()'
 
 ## West
-P_w = NeuronGroup(N, src.eqns_exc_w, threshold='v > 1', reset=reset, method='euler' )
+P_w = NeuronGroup(N, src.eqns_exc_w, threshold='v > 1', reset=src.reset, method='euler' )
 P_w.v = 'rand()'
 
 ## Inhibitory
-P_i = NeuronGroup(N, src.eqns_inh, threshold='v > 1', reset=reset, method='euler' )
+P_i = NeuronGroup(N, src.eqns_inh, threshold='v > 1', reset=src.reset, method='euler' )
 P_i.v = 'rand()'
 
 M_n = SpikeMonitor(P_n)
@@ -235,6 +236,8 @@ for trg in exc_populations:
     S[index].w = "- w_mag_minus*((1 - cos(pi*sqrt((x_post - x_pre)**2 + (y_post - y_pre)**2)/r_w_plus))/2)"
     index += 1
 
+print("Connections set!")
+
 def straight_trajectory(dt, duration, speed):
     """
     
@@ -259,10 +262,12 @@ def straight_trajectory(dt, duration, speed):
 
     return trajectory, velocity
 
+print("Initializing rat trajectory")
 dt = defaultclock.dt
 trajectory, velocity = straight_trajectory(dt, duration, 0.1)
 V_x = TimedArray(velocity[:, 0]*metre/second, dt=dt)
 V_y = TimedArray(velocity[:, 1]*metre/second, dt=dt)
+print("Trajectory set!")
 
 print("Running the simulation")
 run(duration)

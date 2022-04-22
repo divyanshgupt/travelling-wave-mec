@@ -32,6 +32,14 @@ def a_plus_value(rho):
     
     return value
 
+print("Initializing rat trajectory")
+print(f'Straight Trajectory Function type:{type(src.straight_trajectory)}')
+dt = defaultclock.dt
+trajectory, velocity = src.straight_trajectory(dt, duration, 0.1)
+V_x = TimedArray(velocity[:, 0], dt=dt)
+V_y = TimedArray(velocity[:, 1], dt=dt)
+print("Trajectory set!")
+
 # Neural Populations
 
 ## North
@@ -136,12 +144,7 @@ print("Connections set!")
 
 #     return trajectory, velocity
 
-print("Initializing rat trajectory")
-dt = defaultclock.dt
-trajectory, velocity = src.straight_trajectory(dt, duration, 0.1)
-V_x = TimedArray(velocity[:, 0], dt=dt)
-V_y = TimedArray(velocity[:, 1], dt=dt)
-print("Trajectory set!")
+
 
 print("Running the simulation")
 run(duration)

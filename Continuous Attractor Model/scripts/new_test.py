@@ -9,134 +9,6 @@ from src.params import *
 
 start_scope() # creat a new scope
 
-
-# # Parameters
-# n = 80
-# N = 232 * 232 # Neurons per population
-# N = n * n
-
-# tau_m_plus = 40*ms # Exc. membrane time constant
-# tau_m_minus = 20*ms # Inh. membrane time constant
-# tau_s_plus_plus = 5*ms # Exc.-to-exc. synaptic delay
-# tau_s_minus_plus = 2*ms # Exc.-to-inh. synaptic delay
-# tau_s_minus = 2*ms # Inh. synaptic delay
-# a_max_plus = 2 # Exc. drive maximum
-# a_min_plus = 0.8 # Exc. drive minimum
-# rho_a_plus = 1.2 * (n/232) # Exc. drive scaled speed
-# # a_mag_minus = 0.72 # Inh. drive magnitude
-# a_th_minus = 0.2 # Inh. drive theta amplitude
-# f = 8*hertz # Inh. drive theta frequency
-
-# a_mag_minus = 0.9 # Inh. drive magnitude
-# w_mag_plus = 0.2  # Exc. synaptic strength
-# r_w_plus = 6  # Exc. synaptic spread
-# w_mag_minus = 2.8 # Inh. synaptic strength
-# r_w_minus = 12 # Inh. synaptic distance
-# exc_xi = 3 # Exc. synaptic shift
-# alpha = 0.25*second/metre # Exc. velocity gain
-# # var_zeta_P = 0.002**2 # Exc. noise magnitude
-# # var_zeta_I = 0.002**2 # Inh. noise magnitude
-
-# sig_zeta_P = 0.002 # Exc. noise std. dev
-# sig_zeta_I = 0.002 # Inh. noise std. dev
-# duration = 1000*ms
-
-# defaultclock.dt = 0.1*ms
-
-
-
-# eqns_exc_n = '''
-
-# x = i % sqrt(N) : 1
-# y = i // sqrt(N): 1
-
-# # Specify preferred direction
-# dir_x = 0 : 1
-# dir_y = 1 : 1
-
-# # Distance from centre
-# rho = rho_value(x, y, N) : metre (constant over dt)
-
-# a_plus = a_plus_value(rho / metre) : 1 (constant over dt)
-
-# dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus*(1 + alpha*((dir_x * V_x(t)) + (dir_y * V_y(t))))/tau_m_plus : 1
-
-# '''
-
-# eqns_exc_s = '''
-
-# x = i % sqrt(N) : 1
-# y = i // sqrt(N): 1
-
-# # Specify preferred direction
-# dir_x = 0 : 1
-# dir_y = -1 : 1
-
-# # Distance from centre
-# rho = rho_value(x, y, N) : metre (constant over dt)
-
-# a_plus = a_plus_value(rho / metre) : 1 (constant over dt)
-
-# dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus*(1 + alpha*((dir_x * V_x(t)) + (dir_y * V_y(t))))/tau_m_plus : 1
-# '''
-
-# eqns_exc_e = '''
-
-# x = i % sqrt(N) : 1
-# y = i // sqrt(N): 1
-
-# # Specify preferred direction
-# dir_x = 1 : 1
-# dir_y = 0 : 1
-
-# # Distance from centre
-# rho = rho_value(x, y, N) : metre (constant over dt)
-
-# a_plus = a_plus_value(rho / metre) : 1 (constant over dt)
-
-# dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus*(1 + alpha*((dir_x * V_x(t)) + (dir_y * V_y(t))))/tau_m_plus : 1
-# '''
-
-# eqns_exc_w = '''
-
-# x = i % sqrt(N) : 1
-# y = i // sqrt(N): 1
-
-# # Specify preferred direction
-# dir_x = -1 : 1
-# dir_y = 0 : 1
-
-# # Distance from centre
-# rho = rho_value(x, y, N) : metre (constant over dt)
-
-# a_plus = a_plus_value(rho / metre) : 1 (constant over dt)
-
-# dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus*(1 + alpha*((dir_x * V_x(t)) + (dir_y * V_y(t))))/tau_m_plus : 1
-# '''
-
-
-# """ 
-# eqns_exc = '''
-
-# dv/dt = -v/tau_m_plus  + sig_zeta_P*xi*tau_m_plus**-0.5 + a_plus/tau_m_plus : 1
-
-# '''  """
-
-# eqns_inh = '''
-
-# x = i % sqrt(N) : 1
-# y = i // sqrt(N): 1
-
-# dv/dt = -(v - a_minus)/tau_m_minus + sig_zeta_I*xi*tau_m_minus**-0.5 : 1
-
-# a_minus = a_mag_minus - a_th_minus*cos(2*pi*f*t): 1
-
-# '''
-
-# reset = '''
-# v = 0
-# '''
-
 @implementation('numpy', discard_units=True)
 @check_units(x = 1, y = 1, N = 1, result = metre)
 def rho_value(x, y, N):
@@ -238,33 +110,32 @@ for trg in exc_populations:
 
 print("Connections set!")
 
-def straight_trajectory(dt, duration, speed):
-    """
+# def straight_trajectory(dt, duration, speed):
+#     """
     
-    Args:
-        dt - 
-        duration - 
-        speed - in metres/sec
-    """
+#     Args:
+#         dt - 
+#         duration - 
+#         speed - in metres/sec
+#     """
     
-    nb_steps = int(duration/dt)
-    angle = np.random.random()*2*pi
+#     nb_steps = int(duration/dt)
+#     angle = np.random.random()*2*pi
     
-    x = cos(angle)*arange(0, nb_steps+1)*speed*dt
-    y = sin(angle)*arange(0, nb_steps+1)*speed*dt
+#     x = cos(angle)*arange(0, nb_steps+1)*speed*dt
+#     y = sin(angle)*arange(0, nb_steps+1)*speed*dt
 
-    velocity_x = diff(x)/dt
-    velocity_y = diff(y)/dt
+#     velocity_x = diff(x)/dt
+#     velocity_y = diff(y)/dt
 
-    velocity = column_stack((velocity_x, velocity_y))
-    trajectory = column_stack((x, y))
+#     velocity = column_stack((velocity_x, velocity_y))
+#     trajectory = column_stack((x, y))
 
-
-    return trajectory, velocity
+#     return trajectory, velocity
 
 print("Initializing rat trajectory")
 dt = defaultclock.dt
-trajectory, velocity = straight_trajectory(dt, duration, 0.1)
+trajectory, velocity = str.straight_trajectory(dt, duration, 0.1)
 V_x = TimedArray(velocity[:, 0]*metre/second, dt=dt)
 V_y = TimedArray(velocity[:, 1]*metre/second, dt=dt)
 print("Trajectory set!")

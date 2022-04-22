@@ -8,10 +8,10 @@ import src
 from src.params import *
 
 
-print("Initializing rat trajectory")
-print(f'Straight Trajectory Function type:{type(src.straight_trajectory)}')
-dt = defaultclock.dt
-trajectory, velocity = src.straight_trajectory(dt, duration, 0.1)
+# print("Initializing rat trajectory")
+# print(f'Straight Trajectory Function type:{type(src.straight_trajectory)}')
+# dt = defaultclock.dt
+# trajectory, velocity = src.straight_trajectory(dt, duration, 0.1)
 
 start_scope() # creat a new scope
 
@@ -38,16 +38,12 @@ def a_plus_value(rho):
     
     return value
 
-V_x = TimedArray(velocity[:, 0], dt=dt)
-V_y = TimedArray(velocity[:, 1], dt=dt)
-print("Trajectory set!")
-
 # Neural Populations
 
 ## North
 P_n = NeuronGroup(N, src.eqns_exc_n, threshold='v > 1', reset=src.reset, method='euler')
 P_n.v = 'rand()'
-
+    
 ## South
 P_s = NeuronGroup(N, src.eqns_exc_s, threshold='v > 1', reset=src.reset, method='euler')
 P_s.v = 'rand()'
@@ -123,29 +119,32 @@ for trg in exc_populations:
 
 print("Connections set!")
 
-# def straight_trajectory(dt, duration, speed):
-#     """
-    
-#     Args:
-#         dt - 
-#         duration - 
-#         speed - in metres/sec
-#     """
-    
-#     nb_steps = int(duration/dt)
-#     angle = np.random.random()*2*pi
-    
-#     x = cos(angle)*arange(0, nb_steps+1)*speed*dt
-#     y = sin(angle)*arange(0, nb_steps+1)*speed*dt
+def straight_trajectory(dt, duration, speed):
+    """
+    Args:
+        dt - 
+        duration - 
+        speed - in metres/sec
+    """
+    nb_steps = int(duration/dt)
+    angle = np.random.random()*2*pi   
+    x = cos(angle)*arange(0, nb_steps+1)*speed*dt
+    y = sin(angle)*arange(0, nb_steps+1)*speed*dt
+    velocity_x = diff(x)/dt * metre/second
+    velocity_y = diff(y)/dt * metre/second
 
-#     velocity_x = diff(x)/dt
-#     velocity_y = diff(y)/dt
+    velocity = column_stack((velocity_x, velocity_y))
+    trajectory = column_stack((x, y))
 
-#     velocity = column_stack((velocity_x, velocity_y))
-#     trajectory = column_stack((x, y))
+    return trajectory, velocity
 
-#     return trajectory, velocity
-
+print("Initializing rat trajectory")
+# print(f'Straight Trajectory Function type:{type(src.straight_trajectory)}')
+dt = defaultclock.dt
+trajectory, velocity = straight_trajectory(dt, duration, 0.1)
+V_x = TimedArray(velocity[:, 0], dt=dt)
+V_y = TimedArray(velocity[:, 1], dt=dt)
+print("Trajectory set!")
 
 
 print("Running the simulation")

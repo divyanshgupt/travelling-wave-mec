@@ -10,6 +10,7 @@ import os
 import src
 from src.params import *
 
+print(f"Number of neurons per population: {N}")
 date_stamp = str(datetime.datetime.today())[:13]
 location = src.set_location(f'data/{date_stamp}')
 start_scope() # creat a new scope

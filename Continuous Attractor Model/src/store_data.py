@@ -36,7 +36,7 @@ def save_data(data, location, filename, method='pickle'):
         raise NotImplementedError("Saving method not specified properly")
 
     if method == 'pickle':
-        file = open(f'{location}/{filename}', '')
+        file = open(f'{location}/{filename}', 'wb')
         pickle.dump(data, file)
     elif method == 'text':
         file = open(f'{location}/{filename}', 'at')

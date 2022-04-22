@@ -9,6 +9,9 @@ from src.params import *
 
 start_scope() # creat a new scope
 
+date_stamp = str(datetime.datetime.today())[:13]
+location = src.set_location(f'../data/{date_stamp}')
+
 @implementation('numpy', discard_units=True)
 @check_units(x = 1, y = 1, N = 1, result = metre)
 def rho_value(x, y, N):
@@ -136,10 +139,19 @@ print("Connections set!")
 print("Initializing rat trajectory")
 dt = defaultclock.dt
 trajectory, velocity = str.straight_trajectory(dt, duration, 0.1)
-V_x = TimedArray(velocity[:, 0]*metre/second, dt=dt)
-V_y = TimedArray(velocity[:, 1]*metre/second, dt=dt)
+V_x = TimedArray(velocity[:, 0], dt=dt)
+V_y = TimedArray(velocity[:, 1], dt=dt)
 print("Trajectory set!")
 
 print("Running the simulation")
 run(duration)
 print("Simulation finished")
+
+print("Storing data")
+spike_rec = (M_n.get_states(['t', 'i']), M_e.get_states(['t', 'i']), M_w.get_states(['t', 'i']), M_s.get_states(['t', 'i']), M_i.get_states(['t', 'i']))
+# state_rec = (State_n.get_states('v'), State_e.get_states('v'), State_w.get_states('v'), State_s.get_states('v'), State_i.get_states('v'))
+
+# recordings = (trajectory, velocity_array, state_rec, spike_rec)
+recordings = (trajectory, velocity, spike_rec)
+src.save_data(recordings, location, 'recordings', method='pickle')
+print("Task Finished!")

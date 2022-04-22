@@ -11,7 +11,7 @@ import src
 from src.params import *
 
 date_stamp = str(datetime.datetime.today())[:13]
-location = src.set_location(f'../data/{date_stamp}')
+location = src.set_location(f'data/{date_stamp}')
 start_scope() # creat a new scope
 
 dt = defaultclock.dt = 0.1*ms

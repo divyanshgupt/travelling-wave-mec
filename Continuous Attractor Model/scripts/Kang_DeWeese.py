@@ -74,10 +74,22 @@ def straight_trajectory(dt, duration, speed):
 
     return trajectory, velocity
 
+def zero_velocity(dt, duration):
+    nb_steps = int(duration/dt)
+    x = zeros(nb_steps)
+    y = zeros(nb_steps)
+    velocity = column_stack((x, y))
+    trajectory = column_stack((x, y))
+    return trajectory, velocity
+
+
 print("Initializing rat trajectory")
 # print(f'Straight Trajectory Function type:{type(src.straight_trajectory)}')
 dt = defaultclock.dt
-trajectory, velocity = straight_trajectory(dt, duration, 0.1)
+trajectory, velocity = zero_velocity(defaultclock.dt, duration)
+
+# trajectory, velocity = straight_trajectory(dt, duration, 0.1)
+
 V_x = TimedArray(velocity[:, 0] * metre/second, dt=dt)
 V_y = TimedArray(velocity[:, 1] * metre/second, dt=dt)
 print("Trajectory set!")

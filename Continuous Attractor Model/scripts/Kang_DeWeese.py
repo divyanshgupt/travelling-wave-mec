@@ -96,7 +96,8 @@ print("Trajectory set!")
 
 print("Running the simulation")
 net = Network(collect())
-net.add(spike_mons)
+monitors = [M_n, M_s, M_e, M_w, M_i]
+net.add(monitors)
 net.add(S)
 net.run(duration)
 
@@ -116,4 +117,4 @@ recordings = (trajectory, velocity, spike_rec)
 
 src.save_data(recordings, location, 'recordings', method='pickle')
 
-print("Task Finished!")
+pr

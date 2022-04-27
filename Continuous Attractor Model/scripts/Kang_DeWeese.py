@@ -21,10 +21,10 @@ dt = defaultclock.dt = 0.1*ms
 # rec_idxs = src.rand_indices(150, )
 
 @implementation('numpy', discard_units=True)
-@check_units(x = 1, y = 1, N = 1, result = metre)
-def rho_value(x, y, N):
+@check_units(x = 1, y = 1, n = 1, result = metre)
+def rho_value(x, y, n):
 
-    value = sqrt(((x - ((N+1)/2))**2 + (y - ((N+1)/2))**2)/(N/2))
+    value = sqrt(((x - ((n+1)/2))**2 + (y - ((n+1)/2))**2))/(n/2)
 
     return value * metre
 
@@ -34,11 +34,12 @@ def rho_value(x, y, N):
 def a_plus_value(rho):
 
     if rho < rho_a_plus:
-        value = (a_max_plus - a_min_plus) * (1 - cos(pi*rho/rho_a_plus))
+        value = a_min_plus + (a_max_plus - a_min_plus) * ((1 + cos(pi*rho/rho_a_plus))/2)
     else:
         value = a_min_plus
     
     return value
+    
 # Generate Neural Populations
 neural_pops, spike_mons = src.generate_populations(N)
 P_n, P_s, P_e, P_w, P_i = neural_pops
@@ -84,6 +85,7 @@ print("Trajectory set!")
 print("Running the simulation")
 net = Network(collect())
 net.add(spike_mons)
+net.add(S)
 net.run(duration)
 
 # run(duration)
